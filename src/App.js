@@ -1,57 +1,65 @@
-import React from 'react';
-import { useEffect, useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import './App.css';
 
+const formReducer = (state, event) => {
+ return {
+   ...state,
+   [event.name]: event.value
+ }
+}
+
 function App() {
-  const [date, setDate] = useState(null);
-  useEffect(() => {
-    async function getDate() {
-      const res = await fetch('/api/date');
-      const newDate = await res.text();
-      setDate(newDate);
-    }
-    getDate();
-  }, []);
-  return (
-    <main>
-      <h1>Create React App + Go API</h1>
-      <h2>
-        Deployed with{' '}
-        <a
-          href="https://vercel.com/docs"
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          Vercel
-        </a>
-        !
-      </h2>
-      <p>
-        <a
-          href="https://github.com/vercel/vercel/tree/master/examples/create-react-app"
-          target="_blank"
-          rel="noreferrer noopener"
-        >
-          This project
-        </a>{' '}
-        was bootstrapped with{' '}
-        <a href="https://facebook.github.io/create-react-app/">
-          Create React App
-        </a>{' '}
-        and contains three directories, <code>/public</code> for static assets,{' '}
-        <code>/src</code> for components and content, and <code>/api</code>{' '}
-        which contains a serverless <a href="https://golang.org/">Go</a>{' '}
-        function. See{' '}
-        <a href="/api/date">
-          <code>api/date</code> for the Date API with Go
-        </a>
-        .
-      </p>
-      <br />
-      <h2>The date according to Go is:</h2>
-      <p>{date ? date : 'Loading date...'}</p>
-    </main>
-  );
+  const [formData, setFormData] = useReducer(formReducer, {});
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = event => {
+    event.preventDefault();
+    setSubmitting(true);
+
+    setTimeout(() => {
+      setSubmitting(false);
+    }, 7000);
+  }
+
+  const handleChange = event => {
+    setFormData({
+      name: event.target.name,
+      value: event.target.value,
+    });
+  }
+
+  return(
+    <div className="wrapper">
+      <h1>CALCUL IMC</h1>
+      {submitting &&
+       <div>
+         
+         <ul>
+           
+             <li>Poids = {formData.p} kg</li>
+             <li>Taille = {formData.t} m</li>
+             <li><strong>IMC = {parseInt(formData.t)/(parseInt(formData.t)*parseInt(formData.t))}</strong></li>
+          
+         </ul>
+       </div>
+      }
+      <form onSubmit={handleSubmit}>
+        <fieldset>
+          <label>
+            <p>Poids (en kg)</p>
+            <input name="p" onChange={handleChange} value={formData.p || ''}/>
+          </label>
+        </fieldset>
+        <fieldset>
+          <label>
+            <p>Taille (en m)</p>
+            <input name="t" onChange={handleChange} value={formData.t || ''}/>
+          </label>
+        </fieldset>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  )
 }
 
 export default App;
